@@ -48,20 +48,60 @@ Queue<T>::Queue(const Queue& oth) {
 	count = oth.count;
 	head = oth.head;
 	tail = oth.tail;
-	if (head >= tail) 
-	{
-		for (int i = head; i <= tail; i++) pMem[i] = oth.pMem[i];
+	int i = head;
+	while (i != tail) {
+		pMem[i] = oth.pMem[i];
+		i = (i + 1) % maxSize;
 	}
-	else 
-	{
-		for (int i = 0; i <= tail; i++) pMem[i] = oth.pMem[i];
-		for (int i = head; head < maxSize; i++) pMem[i] = oth.pMem[i];	
-	}
+	pMem[i] = oth.pMem[i];
 }
 
 template <class T>
 Queue<T>::~Queue() {
 	delete[] pMem;
+}
+
+template <class T>
+Queue<T>& Queue<T>::operator=(const Queue& oth) {
+	if (this == &oth) {
+		return *this;
+	}
+	if (this->maxSize != oth.maxSize) {
+		maxSize = oth.maxSize;
+		delete[] pMem;
+		pMem = new T[maxSize];
+	}
+	count = oth.count;
+	head = oth.head; 
+	tail = oth.tail;
+	int i = head;
+	while (i != tail) {
+		pMem[i] = oth.pMem[i];
+		i = (i + 1) % maxSize;
+	}
+	pMem[i] = oth.pMem[i];
+	return *this;
+}
+
+template <class T>
+bool Queue<T>::operator==(const Queue& oth) {
+	if (this->maxSize != oth.maxSize || this->count != oth.count || this->head != oth.head || this->tail != oth.tail) {
+		return false;
+	}
+	if (count == 0) {
+		return true;
+	}
+	for (int i = 0; i < count; i++) {
+		if (pMem[(head + i) % maxSize] != oth.pMem[(head + i) % maxSize]) {
+			return false;
+		}
+	}
+	return true;
+}
+
+template <class T>
+bool Queue<T>::operator!=(const Queue& oth) {
+	return !(*this == oth);
 }
 
 template <class T>
@@ -85,12 +125,7 @@ T Queue<T>::pop() {
 		throw -1;
 	}
 	int ind = head;
-	if (head == maxSize - 1) {
-		head = 0;
-	}
-	else {
-		head++;
-	}
+	head = (head + 1) % maxSize;
 	count--;
 	return pMem[ind];
 }

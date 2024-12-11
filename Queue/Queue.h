@@ -1,5 +1,5 @@
 #pragma once
-
+#include <iostream>
 const int MAX_QUEUE_SIZE = 1000;
 
 template <class T>
@@ -118,7 +118,7 @@ bool TQueue<T>::operator!=(const TQueue& oth) const {
 template <class T>
 void TQueue<T>::push(T value) {
 	if (this->isFull()) {
-		throw - 1;
+		throw std::exception("Error: Queue is full!", 10);
 	}
 	if (tail == maxSize - 1) {
 		tail = 0;
@@ -133,7 +133,7 @@ void TQueue<T>::push(T value) {
 template <class T>
 T TQueue<T>::pop() {
 	if (this->isEmpty()) {
-		throw - 1;
+		throw std::exception("Error: Queue is empty!", 11);
 	}
 	int ind = head;
 	head = (head + 1) % maxSize;

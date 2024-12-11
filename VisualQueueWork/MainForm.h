@@ -28,31 +28,35 @@ namespace VisualQueueWork {
 
         int X = 165;
         int Y = 85;
-        int W = 200;
-        int H = 200;
+        int WIDTH = 200;
+        int HEIGHT = 200;
 
-        Random^ rnd = gcnew Random();
+        Random^ MyRand = gcnew Random();
     private: System::Windows::Forms::Label^ lblError;
-           int hasStarted = 0;
+        int hasStarted = 0;
 
         void Draw()
         {
+            Pen^ MyPen = gcnew Pen(Color::Black);
+            MyPen->Width = 15.0F;
+            Graphics^ gr = this->CreateGraphics();
+
             int Start = 360 * q->GetHead() / q->GetMaxSize();
             int Finish = 360 * q->GetCurrentSize() / q->GetMaxSize();
-            Pen^ MyDrawPen = gcnew Pen(Color::Black);
-            MyDrawPen->Width = 20.0F;
-            Graphics^ gr = this->CreateGraphics();
-            gr->DrawArc(MyDrawPen, X, Y, W, H, Start, Finish);
+            
+            gr->DrawArc(MyPen, X, Y, WIDTH, HEIGHT, Start, Finish);
         }
 
         void Clear()
         {
+            Pen^ MyPen = gcnew Pen(Color::Snow);
+            MyPen->Width = 20.0F;
+            Graphics^ gr = this->CreateGraphics();
+
             int Start = 360 * q->GetHead() / q->GetMaxSize();
             int Finish = 360 * q->GetCurrentSize() / q->GetMaxSize();
-            Pen^ MyClearPen = gcnew Pen(Color::Snow);
-            MyClearPen->Width = 20.0F;
-            Graphics^ gr = this->CreateGraphics();
-            gr->DrawArc(MyClearPen, X, Y, W, H, Start, Finish);
+            
+            gr->DrawArc(MyPen, X, Y, WIDTH, HEIGHT, Start, Finish);
         }
     public:
         MainForm(void)
@@ -336,6 +340,11 @@ namespace VisualQueueWork {
         timer1->Enabled = false;
     }
     private: System::Void btnStart_Click(System::Object^ sender, System::EventArgs^ e) {
+        lblError->Text = "";
+        if (txtMaxSize->Text == "" || txtAddChance->Text == "" || txtRemoveChance->Text == "" || txtUpdateFrequency->Text == "" || txtInitialCount->Text == "") {
+            lblError->Text = "Error: Fill in all fields!";
+            return;
+        }
         addChance = Convert::ToDouble(txtAddChance->Text);
         removeChance = Convert::ToDouble(txtRemoveChance->Text);
         initialCount = Convert::ToInt32(txtInitialCount->Text);
@@ -363,27 +372,34 @@ namespace VisualQueueWork {
     }
 
     private: System::Void timer1_Tick(System::Object^ sender, System::EventArgs^ e) {
-        if (!q->isEmpty())
-        {
-            Clear();
+        try {
+            if (!q->isEmpty() && !q->isFull())
+            {
+                Clear();
+            }
+            if (MyRand->Next(0, 101) < addChance)
+            {
+                q->push(1);
+                addedCount++;
+            }
+            if (MyRand->Next(0, 101) < removeChance)
+            {
+                q->pop();
+                removedCount++;
+            }
+            Draw();
+            lblAdded->Text = "Added: " + Convert::ToString(addedCount);
+            lblRemoved->Text = "Removed: " + Convert::ToString(removedCount);
+            lblCurrentSize->Text = "Current Size: " + Convert::ToString(q->GetCurrentSize());
         }
-        if (rnd->Next(0, 101) < addChance)
-        {
-            q->push(1);
-            addedCount++;
-
+        catch (const std::exception& ex) {
+            lblError->Text = gcnew String(ex.what());
+            timer1->Enabled = false;
         }
-        if (rnd->Next(0, 101) < removeChance)
-        {
-            q->pop();
-            removedCount++;
-        }
-        Draw();
-        lblAdded->Text = "Added: " + Convert::ToString(addedCount);
-        lblRemoved->Text = "Removed: " + Convert::ToString(removedCount);
-        lblCurrentSize->Text = "Current Size: " + Convert::ToString(q->GetCurrentSize());
+        
     }
     private: System::Void btnReset_Click(System::Object^ sender, System::EventArgs^ e) {
+        lblError->Text = "";
         timer1->Enabled = false;
         Clear();
         delete q;

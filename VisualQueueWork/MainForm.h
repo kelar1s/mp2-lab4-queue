@@ -49,8 +49,8 @@ namespace VisualQueueWork {
 
         void Clear()
         {
-            Pen^ MyPen = gcnew Pen(Color::Snow);
-            MyPen->Width = 20.0F;
+            Pen^ MyPen = gcnew Pen(Color::Gray);
+            MyPen->Width = 15.0F;
             Graphics^ gr = this->CreateGraphics();
 
             int Start = 360 * q->GetHead() / q->GetMaxSize();
@@ -351,6 +351,10 @@ namespace VisualQueueWork {
         updateFrequency = Convert::ToInt32(txtUpdateFrequency->Text);
         if (hasStarted == 0)
         {
+            Pen^ MyPen = gcnew Pen(Color::Gray);
+            MyPen->Width = 15.0F;
+            Graphics^ gr = this->CreateGraphics();
+            gr->DrawArc(MyPen, X, Y, WIDTH, HEIGHT, 360, 360);
             timer1->Interval = updateFrequency;
             int MaxSize = Convert::ToInt32(txtMaxSize->Text);
             q = new TQueue<int>(MaxSize);
